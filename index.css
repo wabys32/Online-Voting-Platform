@@ -1,0 +1,95 @@
+:root {
+    --btn-color: white;
+    --ripple-color: rgba(255, 255, 255, 0.6);
+    --ripple-duration: 600ms;
+}
+
+
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    /* horizontal split */
+}
+
+
+.btn {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    cursor: pointer;
+    user-select: none;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--btn-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.btn:first-child {
+    background: #1e90ff;
+}
+
+#btn1{
+    background-color: rgb(237, 50, 50) !important;
+}
+#btn2 {
+    background-color: rgb(52, 138, 236) !important;
+}
+
+.btn:last-child {
+    background: #2dd4bf;
+}
+
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: scale(0);
+    opacity: 1;
+    background: var(--ripple-color);
+}
+
+
+@keyframes ripple-grow {
+    to {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+
+.ripple--animate {
+    animation: ripple-grow var(--ripple-duration) cubic-bezier(.2, .6, .2, 1);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --ripple-duration: 120ms;
+    }
+
+    .ripple--animate {
+        animation-duration: var(--ripple-duration);
+    }
+}
+
+.image-sides{
+    position: absolute;
+    width: 200px;
+    height: 240px;
+    bottom: 0;
+}
+
+#image1{
+    left: 0;
+}
+
+#image2{
+    right: 0;
+}
