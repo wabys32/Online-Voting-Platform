@@ -1,0 +1,39 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.nav-link {
+    color: #333 !important;
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 15px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.nav-link:hover {
+    background: #f1f1f1;
+    color: #333;
+}
+
+.nav-link:active{
+    background: rgb(225, 225, 225)
+}
+
+.video-card {
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.video-card:hover {
+    transform: scale(1.02);
+}
