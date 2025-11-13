@@ -1,5 +1,32 @@
 {
   "dependencies": {
-    "bootstrap": "^5.3.8"
-  }
+    "@emailjs/browser": "^4.4.1",
+    "bcrypt": "^6.0.0",
+    "bootstrap": "^5.3.8",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.19.1"
+  },
+  "name": "online-voting-platform",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wabys32/Online-Voting-Platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/wabys32/Online-Voting-Platform/issues"
+  },
+  "homepage": "https://github.com/wabys32/Online-Voting-Platform#readme",
+  "description": ""
 }

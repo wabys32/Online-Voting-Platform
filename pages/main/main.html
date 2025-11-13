@@ -19,14 +19,10 @@
         <div class="sidebar bg-white p-3 border-end">
             <h4 class="mb-4"><i class="bi bi-square-half"></i> Vote.me</h4>
             <ul class="nav flex-column">
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-house-door"></i> For You</a></li>
+                <li class="nav-item"><a href="#" class="nav-link active"><i class="bi bi-house-door"></i> For You</a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-compass"></i> Explore</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-people"></i> Following</a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-person"></i> Friends</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-upload"></i> Upload</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-bell"></i> Notifications</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-chat-dots"></i> Messages</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-broadcast"></i> LIVE</a></li>
+                <li class="nav-item"><a href="../upload/upload.html" class="nav-link"><i class="bi bi-upload"></i> Upload</a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-person-circle"></i> Profile</a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-three-dots"></i> More</a></li>
             </ul>
@@ -37,14 +33,21 @@
             <!-- Top Navbar -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                 <div class="container-fluid">
-                    <form class="d-flex w-100">
-                        <input class="form-control me-2" type="search" placeholder="Search">
+                    <!-- Wider Search Bar -->
+                    <form class="d-flex mx-auto" style="width: 600px;">
+                        <input class="form-control me-2" type="search" placeholder="Search" style="font-size: 0.9rem;">
                     </form>
+                
+                    <!-- Right-aligned buttons -->
+                    <div class="d-flex" id="user-credentials">
+                        <button class="btn btn-outline-primary me-2" type="button" onclick="window.location.href='../login/login.html'">Login</button>
+                        <button class="btn btn-primary" type="button" onclick="window.location.href='../signup/signup.html'">Sign Up</button>
+                    </div>
                 </div>
             </nav>
 
             <!-- Category Tabs -->
-            <ul class="nav nav-pills justify-content-center py-2 border-bottom">
+            <!-- <ul class="nav nav-pills justify-content-center py-2 border-bottom">
                 <li class="nav-item"><a class="nav-link active" href="#">All</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Singing & Dancing</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Comedy</a></li>
@@ -53,7 +56,7 @@
                 <li class="nav-item"><a class="nav-link" href="#">Relationship</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Shows</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Beauty Care</a></li>
-            </ul>
+            </ul> -->
 
             <!-- Video Grid -->
             <div class="container-fluid py-3">
@@ -84,7 +87,7 @@
         </div>
     </div>
 
-
+    <script src="auth.js"></script>
     <script src="../../assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 

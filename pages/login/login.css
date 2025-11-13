@@ -1,0 +1,148 @@
+#page {
+    position: absolute;
+    bottom: 0;
+    right: 1%;
+}
+
+#pageMessages {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    width: 30%;
+}
+
+.alert {
+    position: relative;
+}
+
+.alert .close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 1em;
+}
+
+.alert .fa {
+    margin-right: .3em;
+}
+
+/* FlipInX animation from Animate.css */
+.animated {
+    animation-duration: 1s;
+    animation-fill-mode: both;
+}
+
+@keyframes flipInX {
+    from {
+        transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+        animation-timing-function: ease-in;
+        opacity: 0;
+    }
+
+    40% {
+        transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+        animation-timing-function: ease-in;
+    }
+
+    60% {
+        transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+        opacity: 1;
+    }
+
+    80% {
+        transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+    }
+
+    to {
+        transform: perspective(400px);
+        opacity: 1;
+    }
+}
+
+.flipInX {
+    backface-visibility: visible !important;
+    animation-name: flipInX;
+}
+
+/* FlipOutX animation for dismissal */
+@keyframes flipOutX {
+    from {
+        transform: perspective(400px);
+        opacity: 1;
+    }
+
+    to {
+        transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+        animation-timing-function: ease-out;
+        opacity: 0;
+    }
+}
+
+.flipOutX {
+    animation-name: flipOutX;
+    backface-visibility: visible !important;
+}
+
+@keyframes greenBg{
+    from {
+        
+    }
+    20% {
+        color: rgb(0, 210, 0);
+        background-color: rgb(0, 210, 0);
+        border-color: rgb(0, 210, 0);
+    }
+    30% {
+        color: white;
+    }
+    
+    70% {
+        color: white;
+    }
+    80% {
+        color: rgb(0, 210, 0);
+        background-color: rgb(0, 210, 0);
+        border-color: rgb(0, 210, 0);
+    }
+
+    100%{
+        
+    }
+}
+
+@keyframes redBg{
+    from{
+        
+    }
+    20% {
+        color: crimson;
+        background-color: crimson;
+        border-color: crimson;
+    }
+    30%{
+        color: white;
+    }
+    70%{
+        color: white;
+    }
+    80% {
+        color: crimson;
+        background-color: crimson;
+        border-color: crimson;
+    }
+    100%{
+        
+    }
+}
+
+.animate-green {
+    animation: greenBg 2s ease;
+}
+
+.animate-red {
+    animation: redBg 2s ease;
+}
+
+.is-invalid{
+    border-radius: 5px 0 0 5px !important;
+}

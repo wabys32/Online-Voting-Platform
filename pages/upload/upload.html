@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image to MongoDB</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #preview { max-width: 300px; margin: 10px 0; display: none; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Upload Poll</h1>
+
+    <input type="text">
+
+    <input type="file" id="imageInput" accept="image/*" />
+    <br><br>
+    <img id="preview" src="" alt="Image Preview" />
+    <br><br>
+    <button id="uploadBtn">Upload to MongoDB</button>
+
+    <p id="status"></p>
+
+    <script src="upload.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

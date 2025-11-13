@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote.me — Sign up</title>
+    <!-- Extra styles -->
+    <link rel="stylesheet" href="signup.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Vote me — Sign up</h2>
+
+        <form id="userForm" class="mx-auto" style="max-width: 400px;">
+
+            <div class="mb-3" id="nameField">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+            </div>
+
+            <div class="mb-3" id="nicknameField">
+                <label for="nickname" class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text">@</span>
+                    <input type="text" class="form-control" id="nickname" placeholder="Enter your username" required minlength="3">
+                    <div class="invalid-feedback">
+                        User with this username already exists
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3" id="emailField">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                <div class="invalid-feedback">
+                    User with this email already exists
+                </div>
+            </div>
+
+            <div class="mb-3" id="passwordField">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" placeholder="Enter password" required minlength="4">
+                    <button type="button" class="btn" onmousedown="showHidePassword()" onmouseup="showHidePassword()" tabindex="-1">
+                        <i id="eye-icon" class="bi bi-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3 d-none" id="email-code-form">
+                <label for="email-code" class="form-label">Code from email</label>
+                <input type="text" class="form-control" id="email-code" placeholder="Enter code from email">
+            </div>
+            
+            <div id="pageMessages">
+                
+            </div>
+
+            <button id="submitButton" type="submit" class="btn btn-primary w-100">Send Code</button>
+        </form>
+    </div>
+
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="signup.js"></script>
+    <script src="alert.js"></script>
+</body>
+
+</html>
