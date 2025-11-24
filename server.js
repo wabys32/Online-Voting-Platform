@@ -7,12 +7,14 @@ import jwt from "jsonwebtoken";
 
 dotenv.config();
 const app = express();
-app.use(express.json());
+// CORS + LARGE PAYLOAD FIX (replace the 4 lines above with these 3)
+app.use(cors({
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500"],
+    credentials: true
+}));
 
-app.use(express.json({ limit: '10mb' }));        // Increase JSON limit
-app.use(express.urlencoded({ limit: '10mb', extended: true })); // For form data
-
-app.use(cors());
+app.use(express.json({ limit: "15mb" }));                    // Allow big base64 images
+app.use(express.urlencoded({ limit: "15mb", extended: true }));
 
 
 // connect to MongoDB Atlas
@@ -49,8 +51,8 @@ app.post("/api/users", async (req, res) => {
         await newUser.save();
 
         const token = jwt.sign(
-            { 
-                userId: newUser._id, 
+            {
+                userId: newUser._id,
                 email: newUser.email,
                 name: newUser.name,
                 nickname: newUser.nickname
@@ -59,8 +61,8 @@ app.post("/api/users", async (req, res) => {
             { expiresIn: "7d" }
         );
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             token,
             user: { email: newUser.email, name: newUser.name, nickname: newUser.nickname }
         });
@@ -85,7 +87,7 @@ app.post("/api/users/checkuser", async (req, res) => {
         // console.log("User data: ", nickname, email)
 
         const users = await User.find();
-        
+
 
         let foundEmail = false;
         let foundNickname = false
@@ -98,13 +100,13 @@ app.post("/api/users/checkuser", async (req, res) => {
             if (foundEmail && foundNickname)
                 break;
         }
-        
+
         // console.log(foundEmail, foundNickname)
         res.json({
             emailFound: foundEmail,
             nicknameFound: foundNickname
         });
-        
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -127,11 +129,11 @@ app.post("/api/users/login", async (req, res) => {
             passwordMatched = true;
         }
 
-		// Generate JWT secret
-		if (userFound && passwordMatched) {
+        // Generate JWT secret
+        if (userFound && passwordMatched) {
             const token = jwt.sign(
-                { 
-                    userId: user._id, 
+                {
+                    userId: user._id,
                     email: user.email,
                     name: user.name,
                     nickname: user.nickname
@@ -140,8 +142,8 @@ app.post("/api/users/login", async (req, res) => {
                 { expiresIn: "7d" }
             );
 
-            return res.json({ 
-                success: true, 
+            return res.json({
+                success: true,
                 token,
                 user: { email: user.email, name: user.name, nickname: user.nickname }
             });
@@ -170,54 +172,85 @@ app.get("/api/auth/check", (req, res) => {
         if (err) {
             return res.status(401).json({ loggedIn: false });
         }
-        res.json({ 
-            loggedIn: true, 
-            user: { 
-                id: decoded.userId, 
+        res.json({
+            loggedIn: true,
+            user: {
+                id: decoded.userId,
                 email: decoded.email,
                 name: decoded.name,
                 nickname: decoded.nickname
-            } 
+            }
         });
     });
 });
 
 
-// UPLOADING IMAGES
-// ✅ Image schema and model
-const imageSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+// ✅ Poll schema and model
+// UPLOADING POLLS (2 images + texts + user)
+const pollSchema = new mongoose.Schema({
+    option1: {
+        imageData: String,    // full size
+        thumbData: String,    // thumbnail size
+        filename: String,
+        contentType: String,
+        text: String
+    },
+    option2: {
+        imageData: String,   // full size
+        thumbData: String,   // thumbnail size
+        filename: String,
+        contentType: String,
+        text: String
+    },
     nickname: String,
-    imageData: String, // Base64 string
-    filename: String,
-    contentType: String,
     uploadDate: { type: Date, default: Date.now }
 });
-const Image = mongoose.model("Image", imageSchema, "images");
+const Poll = mongoose.model("Poll", pollSchema, "polls");
 
-// Route: Upload image
-app.post("/api/images", async (req, res) => {
+// Route: Upload poll (two images + texts)
+app.post("/api/polls", async (req, res) =>  {
     try {
-        const { imageData, filename, contentType, userId, nickname } = req.body;
+        const { option1, option2, nickname } = req.body;
 
-        const newImage = new Image({
-            userId,
-            nickname,
-            imageData,
-            filename,
-            contentType
+        const newPoll = new Poll({
+            option1,
+            option2,
+            nickname
         });
 
-        await newImage.save();
-        res.json({ success: true, message: "Image saved!" });
+        await newPoll.save();
+        res.json({ success: true, message: "Poll saved!" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
     }
 });
+// Route: Get all polls
+app.get("/api/polls", async (req, res) => {
+    try {
+        const polls = await Poll.find().sort({ uploadDate: -1 });
+        res.json(polls);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// ULTRA-FAST endpoint for main page – only thumbnails + text (5–15 KB per poll)
+app.get("/api/polls/thumbs", async (req, res) => {
+    try {
+        const polls = await Poll.find()
+            .select("option1.thumbData option1.text option2.thumbData option2.text nickname uploadDate _id")
+            .sort({ uploadDate: -1 })
+            .lean(); // removes MongoDB bloat
+
+        res.json(polls);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 
 
 // Listen on that port
-app.listen(process.env.PORT, () => 
+app.listen(process.env.PORT, () =>
     console.log("🚀 Server running on port 3000")
 );

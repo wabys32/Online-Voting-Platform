@@ -1,4 +1,7 @@
 const userCredentialsContainer = document.getElementById('user-credentials')
+let user_email = null;
+let user_name = null;
+let user_nickname = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("authToken");
@@ -22,6 +25,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("Login success:", result.user.email, result.user.name, result.user.nickname);
             if (userCredentialsContainer)
                 userCredentialsContainer.innerHTML = `<p class="username-container">@${result.user.nickname}</p><button class="btn btn-outline-primary me-2" type="button" onclick="logOff()">Log off</button>`
+            user_email = result.user.email
+            user_name = result.user.name
+            user_nickname = result.user.nickname
             // Optional: Update UI to show logged-in state
             // e.g., document.getElementById("userEmail").textContent = result.user.email;
         } else {
@@ -35,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-function logOff(){
+function logOff() {
     localStorage.removeItem('authToken')
     window.location.reload();
 }
