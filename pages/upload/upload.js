@@ -74,7 +74,7 @@ function compressAndPreview(file, previewEl, callbackFull, callbackThumb) {
                 canvas.offsetWidth -= difference / 2
                 ctx.drawImage(img, difference / 2, 0, w, h);
             }
-            
+
             const fullBase64 = canvas.toDataURL('image/png');
 
             // 2. Tiny thumbnail 100×100, super low quality
@@ -86,7 +86,7 @@ function compressAndPreview(file, previewEl, callbackFull, callbackThumb) {
 
             previewEl.src = fullBase64;
             previewEl.style.display = 'block';
-            
+
             callbackFull(fullBase64);
             callbackThumb(thumbBase64);
         };
@@ -97,60 +97,63 @@ function compressAndPreview(file, previewEl, callbackFull, callbackThumb) {
 
 // Upload both
 uploadBtn.addEventListener('click', async () => {
-    if (!file1?.fullBase64 || !file2?.fullBase64) {
-        status.textContent = "Please upload and process both images!";
-        status.style.color = "red";
-        return;
-    }
-    if (!textInput1.value.trim() || !textInput2.value.trim()) {
-        status.textContent = "Please enter text for both images!";
-        status.style.color = "red";
-        return;
-    }
+    if (user_email != null) {
+        if (!file1?.fullBase64 || !file2?.fullBase64) {
+            status.textContent = "Please upload and process both images!";
+            status.style.color = "red";
+            return;
+        }
+        if (!textInput1.value.trim() || !textInput2.value.trim()) {
+            status.textContent = "Please enter text for both images!";
+            status.style.color = "red";
+            return;
+        }
 
-    status.textContent = "Uploading...";
-    status.style.color = "blue";
+        status.textContent = "Uploading...";
+        status.style.color = "blue";
 
-    const user = getUserFromToken();
-    const nickname = user?.nickname || "anonymous";
+        const user = getUserFromToken();
+        const nickname = user?.nickname || "anonymous";
 
-    const payload = {
-        option1: {
-            imageData: file1.fullBase64,
-            thumbData: file1.thumbBase64,        // ← NEW
-            filename: file1.name.replace(/\.[^/.]+$/, "") + ".png",
-            contentType: "image/png",
-            text: textInput1.value.trim()
-        },
-        option2: {
-            imageData: file2.fullBase64,
-            thumbData: file2.thumbBase64,        // ← NEW
-            filename: file2.name.replace(/\.[^/.]+$/, "") + ".png",
-            contentType: "image/png",
-            text: textInput2.value.trim()
-        },
-        nickname
-    };
+        const payload = {
+            option1: {
+                imageData: file1.fullBase64,
+                thumbData: file1.thumbBase64,        // ← NEW
+                filename: file1.name.replace(/\.[^/.]+$/, "") + ".png",
+                contentType: "image/png",
+                text: textInput1.value.trim()
+            },
+            option2: {
+                imageData: file2.fullBase64,
+                thumbData: file2.thumbBase64,        // ← NEW
+                filename: file2.name.replace(/\.[^/.]+$/, "") + ".png",
+                contentType: "image/png",
+                text: textInput2.value.trim()
+            },
+            nickname
+        };
 
-    try {
-        const response = await fetch('http://localhost:3000/api/polls', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        try {
+            const response = await fetch('http://localhost:3000/api/polls', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
-        const result = await response.json();
-        if (result.success) {
-            status.textContent = "Poll uploaded successfully!";
-            status.style.color = "green";
-        } else {
-            status.textContent = "Error: " + (result.error || "Upload failed");
+            const result = await response.json();
+            if (result.success) {
+                status.textContent = "Poll uploaded successfully!";
+                status.style.color = "green";
+            } else {
+                status.textContent = "Error: " + (result.error || "Upload failed");
+                status.style.color = "red";
+            }
+        } catch (err) {
+            status.textContent = "Error: " + err.message;
             status.style.color = "red";
         }
-    } catch (err) {
-        status.textContent = "Error: " + err.message;
-        status.style.color = "red";
     }
+
 });
 
 function getUserFromToken() {

@@ -203,6 +203,9 @@ const pollSchema = new mongoose.Schema({
         text: String
     },
     nickname: String,
+    option1Votes: { type: Number, default: 0 },
+    option2Votes: { type: Number, default: 0 },
+    votedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     uploadDate: { type: Date, default: Date.now }
 });
 const Poll = mongoose.model("Poll", pollSchema, "polls");
@@ -248,6 +251,109 @@ app.get("/api/polls/thumbs", async (req, res) => {
     }
 });
 
+// SUPER LIGHT list – no images at all (just texts + IDs for main page)
+app.get("/api/polls/light", async (req, res) => {
+    try {
+        const polls = await Poll.find()
+            .select("option1.text option2.text nickname uploadDate _id")
+            .sort({ uploadDate: -1 })
+            .lean();
+
+        res.json(polls);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get thumbnails for a single poll (lazy load)
+app.get("/api/polls/:id/thumbs", async (req, res) => {
+    try {
+        const poll = await Poll.findById(req.params.id)
+            .select("option1.thumbData option2.thumbData")
+            .lean();
+
+        if (!poll) return res.status(404).json({ error: "Poll not found" });
+        res.json(poll);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get one full poll (used when clicking on polls)
+app.get("/api/polls/:id", async (req, res) => {
+    try {
+        const poll = await Poll.findById(req.params.id).lean();
+        if (!poll) return res.status(404).json({ error: "Poll not found" });
+        res.json(poll);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+// Vote for an option of a poll
+app.post("/api/polls/:id/vote", async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) return res.status(401).json({ error: "Login required to vote" });
+
+        let userId;
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            userId = decoded.userId;
+        } catch (err) {
+            return res.status(401).json({ error: "Invalid token" });
+        }
+
+        const { option } = req.body; // 1 or 2
+        if (option !== 1 && option !== 2) return res.status(400).json({ error: "Invalid option" });
+
+        const poll = await Poll.findById(req.params.id);
+        if (!poll) return res.status(404).json({ error: "Poll not found" });
+
+        if (poll.votedUsers.some(id => id.equals(userId))) {
+            return res.status(403).json({ error: "You already voted" });
+        }
+
+        if (option === 1) poll.option1Votes += 1;
+        else poll.option2Votes += 1;
+
+        poll.votedUsers.push(userId);
+        await poll.save();
+
+        res.json({ success: true, option1Votes: poll.option1Votes, option2Votes: poll.option2Votes });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+// Check if user has already voted
+app.get("/api/polls/:id/checkvote", async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) return res.status(401).json({ error: "Login required to check vote" });
+
+        let userId;
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            userId = decoded.userId;
+        } catch (err) {
+            return res.status(401).json({ error: "Invalid token" });
+        }
+
+        const poll = await Poll.findById(req.params.id);
+        if (!poll) return res.status(404).json({ error: "Poll not found" });
+
+        if (poll.votedUsers.some(id => id.equals(userId))) {
+            return res.status(403).json({ error: "You already voted" });
+        }
+        
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 
 // Listen on that port

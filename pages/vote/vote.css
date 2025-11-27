@@ -4,21 +4,45 @@
     --ripple-duration: 600ms;
 }
 
-
 body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: row;
-    /* horizontal split */
+    overflow-y: hidden;
 }
 
+.loading-screen {
+    width: 100%;
+    height: 100%;
+    position: inherit;
+    background-color: rgb(247, 247, 247);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-.btn {
+.option-button {
+    display: none !important;
+}
+
+.logotype{
+    cursor: pointer;
+}
+
+.options-container {
+    background-color: #333;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.option-button {
+    width: 50%;
+    height: 100%;
     flex: 1;
     position: relative;
     overflow: hidden;
-    border: 0;
+    border: 0 !important;
+    border-radius: 0 !important;
     cursor: pointer;
     user-select: none;
     font-size: 2rem;
@@ -30,20 +54,17 @@ body {
 }
 
 
-.btn:first-child {
-    background: #1e90ff;
+
+#btn1 {
+    background-color: rgb(237, 50, 50) !important;
+    left: 0;
 }
 
-#btn1{
-    background-color: rgb(237, 50, 50) !important;
-}
 #btn2 {
     background-color: rgb(52, 138, 236) !important;
+    right: 0;
 }
 
-.btn:last-child {
-    background: #2dd4bf;
-}
 
 
 .ripple {
@@ -79,17 +100,239 @@ body {
     }
 }
 
-.image-sides{
+.image-sides {
     position: absolute;
     width: 200px;
     height: 240px;
-    bottom: 0;
+    bottom: 3%;
 }
 
-#image1{
+#image1 {
     left: 0;
 }
 
-#image2{
+#image2 {
     right: 0;
+}
+
+
+
+body {
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.nav-link {
+    color: #333 !important;
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 15px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.nav-link.active {
+    color: white !important;
+    background-color: #0d6efd;
+}
+
+.nav-link.active:hover {
+    color: white !important;
+    background-color: #0f5aca !important;
+}
+
+.nav-link:hover {
+    background: #f1f1f1;
+    color: #333;
+}
+
+.nav-link:active {
+    background: rgb(225, 225, 225)
+}
+
+.video-card {
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.video-card:hover {
+    transform: scale(1.02);
+}
+
+.username-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+.video-card {
+    height: 250px;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.video-card:hover {
+    transform: scale(1.03);
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+.search-bar {
+    width: 600px;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+.option-text {
+    font-size: 3vw;
+    user-select: none;
+    pointer-events: none;
+    color: white;
+    font-weight: bolder;
+}
+
+#totalVotes{
+    position: absolute;
+    font-size: 24px;
+    color: white;
+    font-weight: bolder;
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transform: translateY(1250%);
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+#totalVotes.voted{
+    transform: translateY(750%);
+    opacity: 1;
+}
+
+
+/* =================================== */
+/* New styles for percentage animation */
+/* =================================== */
+
+.option-text {
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.percentage-text {
+    position: absolute;
+    font-size: 4vw;
+    user-select: none;
+    pointer-events: none;
+    color: white;
+    font-weight: bolder;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(200%);
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+}
+
+
+.option-button{
+    opacity: 1;
+    transition: opacity 0.8s ease-out;
+}
+.option-button.voted{
+    opacity: 0.7;
+}
+
+.option-text.voted {
+    transform: translateY(-150%);
+    opacity: 0.3;
+}
+
+.percentage-text.voted {
+    transform: translateY(-100%);
+    opacity: 1;
+}
+
+
+/* =================================== */
+/* Styles for loading screen animation */
+/* =================================== */
+
+.split-box {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    border: 3px solid black;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    opacity: 0.15;
+}
+
+.left-split-box {
+    width: 50%;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    background-color: black;
+    animation-name: left-color-shift;
+}
+
+.right-split-box {
+    width: 50%;
+    height: 100%;
+    right: 0;
+    position: absolute;
+    background-color: white;
+    animation-name: right-color-shift;
+}
+
+
+@keyframes left-color-shift {
+    0% {
+        background-color: black;
+    }
+
+    2% {
+        color: white;
+    }
+
+    100% {
+        background-color: white;
+    }
+}
+
+@keyframes right-color-shift {
+    0% {
+        background-color: white;
+    }
+
+    2% {
+        color: black;
+    }
+
+    100% {
+        background-color: black;
+    }
+}
+
+.left-split-box,
+.right-split-box {
+    animation-duration: 0.9s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
