@@ -86,8 +86,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function checkIfVoted(){
+        // Check if user_nickname has been set by auth.js
+
+        if (!user_nickname) {
+            console.log("Nickname not yet available or user not logged in.");
+            return; 
+        }
+
         try{
-            const res = await fetch(`http://localhost:3000/api/polls/${pollId}/checkvote`, {
+            // Use the global user_nickname
+            const res = await fetch(`http://localhost:3000/api/polls/${pollId}/checkvote?nickname=${user_nickname}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -98,12 +106,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!res.ok) {
                 console.log("User has already voted");
                 showResultsAnimation();
-
+                btn1.disabled = true;
+                btn2.disabled = true;
             }else{
                 console.log("User hasn't voted yet");
             }
         }catch (err){
-            alert('Vote error: ' + err.message);
+            alert('Vote check error: ' + err.message);
         }
     }
 
@@ -147,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn2.addEventListener('click', async () => vote(2));
 
     async function vote(option) {
-        if (!token) {
+        if (!token || !user_nickname) {
             alert('Please login to vote');
             return;
         }
@@ -159,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ option })
+                body: JSON.stringify({ option, userNickname: user_nickname })
             });
 
             if (!res.ok) {

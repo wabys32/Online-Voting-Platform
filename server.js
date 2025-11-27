@@ -205,7 +205,7 @@ const pollSchema = new mongoose.Schema({
     nickname: String,
     option1Votes: { type: Number, default: 0 },
     option2Votes: { type: Number, default: 0 },
-    votedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    votedUsers: [{ type: String }],
     uploadDate: { type: Date, default: Date.now }
 });
 const Poll = mongoose.model("Poll", pollSchema, "polls");
@@ -297,28 +297,26 @@ app.post("/api/polls/:id/vote", async (req, res) => {
         const token = req.headers.authorization?.split(" ")[1];
         if (!token) return res.status(401).json({ error: "Login required to vote" });
 
-        let userId;
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            userId = decoded.userId;
-        } catch (err) {
-            return res.status(401).json({ error: "Invalid token" });
-        }
+        // CHANGE: Extract option AND userNickname from the request body
+        const { option, userNickname } = req.body; 
+        
+        if (!userNickname) return res.status(400).json({ error: "Nickname not provided" });
 
-        const { option } = req.body; // 1 or 2
         if (option !== 1 && option !== 2) return res.status(400).json({ error: "Invalid option" });
 
         const poll = await Poll.findById(req.params.id);
         if (!poll) return res.status(404).json({ error: "Poll not found" });
 
-        if (poll.votedUsers.some(id => id.equals(userId))) {
+        // CHANGE: Check if nickname is already in the votedUsers array
+        if (poll.votedUsers.includes(userNickname)) {
             return res.status(403).json({ error: "You already voted" });
         }
 
         if (option === 1) poll.option1Votes += 1;
         else poll.option2Votes += 1;
 
-        poll.votedUsers.push(userId);
+        // CHANGE: Push nickname instead of userId
+        poll.votedUsers.push(userNickname); 
         await poll.save();
 
         res.json({ success: true, option1Votes: poll.option1Votes, option2Votes: poll.option2Votes });
@@ -334,18 +332,16 @@ app.get("/api/polls/:id/checkvote", async (req, res) => {
         const token = req.headers.authorization?.split(" ")[1];
         if (!token) return res.status(401).json({ error: "Login required to check vote" });
 
-        let userId;
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            userId = decoded.userId;
-        } catch (err) {
-            return res.status(401).json({ error: "Invalid token" });
-        }
+        // CHANGE: Get nickname from query parameters (sent by vote.js)
+        const { nickname: userNickname } = req.query; 
+
+        if (!userNickname) return res.status(400).json({ error: "Nickname not provided" });
 
         const poll = await Poll.findById(req.params.id);
         if (!poll) return res.status(404).json({ error: "Poll not found" });
 
-        if (poll.votedUsers.some(id => id.equals(userId))) {
+        // CHANGE: Check if the nickname is in the votedUsers array (which now stores strings)
+        if (poll.votedUsers.includes(userNickname)) {
             return res.status(403).json({ error: "You already voted" });
         }
         
