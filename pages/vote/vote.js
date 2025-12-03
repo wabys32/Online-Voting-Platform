@@ -1,9 +1,54 @@
 // Full new vote.js file (create this file)
+const userCredentialsContainer = document.getElementById('user-credentials')
+const upload_page = document.getElementById("upload_page")
+let user_email = null;
+let user_name = null;
+let user_nickname = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
+    /// SECTION, MOVED FROM AUTH.JS
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+        console.log("No token found. User not logged in.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:3000/api/auth/check", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.loggedIn) {
+            console.log("Login success:", result.user.email, result.user.name, result.user.nickname);
+            if (userCredentialsContainer)
+                userCredentialsContainer.innerHTML = `<p class="username-container">@${result.user.nickname}</p><button class="btn btn-outline-primary me-2" type="button" onclick="logOff()">Log off</button>`
+            user_email = result.user.email
+            user_name = result.user.name
+            user_nickname = result.user.nickname
+            // Optional: Update UI to show logged-in state
+            // e.g., document.getElementById("userEmail").textContent = result.user.email;
+        } else {
+            localStorage.removeItem("authToken");
+            console.log("Invalid token. Logged out.");
+        }
+    } catch (err) {
+        console.error("Auth check failed:", err);
+        localStorage.removeItem("authToken");
+    }
+
+
+
     const urlParams = new URLSearchParams(window.location.search);
     const pollId = urlParams.get('pollId');
     if (!pollId) {
-        alert('No poll ID found');
+        // Replaced alert with console log/error as per instructions
+        console.error('No poll ID found');
         return;
     }
 
@@ -19,15 +64,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadingScreen = document.getElementById('loading-screen');
     const optionButtons = document.getElementsByClassName('option-button');
-
-    let userId = null;
-    const token = localStorage.getItem('authToken');
-    if (token) {
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            userId = payload.userId;
-        } catch {}
-    }
 
     // Get contrast color for text
     function getContrastColor(rgbColor) {
@@ -63,56 +99,80 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             let totalVotes = poll.option1Votes + poll.option2Votes;
             let option1Percentage = 0.0, option2Percentage = 0.0;
-            
-            if (totalVotes != 0){
+
+            if (totalVotes != 0) {
                 option1Percentage = poll.option1Votes / totalVotes;
                 option2Percentage = poll.option2Votes / totalVotes;
                 option1Percentage *= 100;
                 option2Percentage *= 100;
-            }else{
+            } else {
                 option1Percentage = 0;
                 option2Percentage = 0;
             }
-            
-            percentage1Text.textContent = `${option1Percentage}%`;
-            percentage2Text.textContent = `${option2Percentage}%`;
+
+            percentage1Text.textContent = `${option1Percentage.toFixed(1)}%`;
+            percentage2Text.textContent = `${option2Percentage.toFixed(1)}%`;
             totalVotesText.textContent = `Total Votes: ${totalVotes}`;
 
             // Check if already voted (requires server to expose votedUsers, but for privacy, better to check on vote)
             // For now, attempt vote and handle error
         } catch (err) {
-            alert('Failed to load poll');
+            console.error('Failed to load poll:', err);
         }
     }
 
-    async function checkIfVoted(){
-        // Check if user_nickname has been set by auth.js
+    async function checkIfVoted() {
+        const currentToken = localStorage.getItem("authToken");
 
-        if (!user_nickname) {
+        if (!currentToken || !user_nickname) {
             console.log("Nickname not yet available or user not logged in.");
-            return; 
+            return;
         }
 
-        try{
+        try {
             // Use the global user_nickname
             const res = await fetch(`http://localhost:3000/api/polls/${pollId}/checkvote?nickname=${user_nickname}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${currentToken}`
                 }
             });
 
+            // 1. Check for non-successful HTTP status (4xx, 5xx) first
             if (!res.ok) {
-                console.log("User has already voted");
+                // Handle API errors like 401, 400, 404, 500
+                console.error("Failed to check vote status:", res.status, await res.text());
+                return; // Exit the function or handle the error
+            }
+
+            // 2. Parse the JSON response body
+            const data = await res.json();
+            const hasVoted = data.voted; // The key variable we want to receive
+            const userOption = data.option; // Capture the user's previously selected option
+
+            // 3. Use the 'hasVoted' variable to determine the UI state
+            if (hasVoted) {
+                console.log("User has already voted (VOTED: true)");
+                console.log(`User previously voted for option: ${userOption}`);
+
+                // Highlight the user's previously selected option
+                if (userOption === 1) {
+                    // Assuming 'voted-highlight' is a CSS class to visually indicate the selection
+                    btn1.classList.add('voted-highlight');
+                } else if (userOption === 2) {
+                    btn2.classList.add('voted-highlight');
+                }
+
                 showResultsAnimation();
                 btn1.disabled = true;
                 btn2.disabled = true;
-            }else{
-                console.log("User hasn't voted yet");
+            } else {
+                console.log("User hasn't voted yet (VOTED: false)");
             }
-        }catch (err){
-            alert('Vote check error: ' + err.message);
+
+        } catch (err) {
+            console.error("An error occurred during fetch:", err);
         }
     }
 
@@ -133,11 +193,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Option 1 (Text/Percentage 1) is on the left side, which uses the background color from image2 (color2)
     option1Text.style.setProperty('color', contrastColor2, 'important');
     percentage1Text.style.setProperty('color', contrastColor2, 'important');
-    
+
     // Option 2 (Text/Percentage 2) is on the right side, which uses the background color from image1 (color1)
     option2Text.style.setProperty('color', contrastColor1, 'important');
     percentage2Text.style.setProperty('color', contrastColor1, 'important');
-    
+
     // Assuming totalVotesText is centered and needs high contrast against the dominant background
     // You might need to adjust this depending on its placement. For now, use the color of btn1's background (color2)
     totalVotesText.style.setProperty('color', contrastColor2, 'important');
@@ -157,7 +217,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function vote(option) {
         if (!token || !user_nickname) {
-            alert('Please login to vote');
+            // Replaced alert with console log/error as per instructions
+            console.error('Please login to vote');
             return;
         }
 
@@ -173,41 +234,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (!res.ok) {
                 const err = await res.json();
-                alert(err.error || 'Vote failed');
+                // Replaced alert with console log/error as per instructions
+                console.error('Vote failed:', err.error || 'Unknown error');
                 return;
             }
 
             const { option1Votes, option2Votes } = await res.json();
-            
-            
+
+
             let totalVotes = option1Votes + option2Votes;
             let option1Percentage, option2Percentage;
-            if (totalVotes != 0){
+            if (totalVotes != 0) {
                 option1Percentage = option1Votes / totalVotes;
                 option2Percentage = option2Votes / totalVotes;
                 option1Percentage *= 100;
                 option2Percentage *= 100;
-            }else{
+            } else {
                 option1Percentage = 0;
                 option2Percentage = 0;
             }
-            
-            percentage1Text.textContent = `${option1Percentage}%`;
-            percentage2Text.textContent = `${option2Percentage}%`;
+
+            percentage1Text.textContent = `${option1Percentage.toFixed(1)}%`;
+            percentage2Text.textContent = `${option2Percentage.toFixed(1)}%`;
             totalVotesText.textContent = `Total Votes: ${totalVotes}`;
+
+            // Highlight the newly cast vote
+            if (option === 1) {
+                btn1.classList.add('voted-highlight');
+            } else if (option === 2) {
+                btn2.classList.add('voted-highlight');
+            }
 
             // Disable buttons after vote
             btn1.disabled = true;
             btn2.disabled = true;
         } catch (err) {
-            alert('Vote error: ' + err.message);
+            // Replaced alert with console log/error as per instructions
+            console.error('Vote error:', err.message);
         }
     }
 });
 
 
 function getAverageColorFromImage(imgElement) {
-    const BRIGHTNESS_BOOST = 100; 
+    const BRIGHTNESS_BOOST = 100;
 
     if (!imgElement.complete || imgElement.naturalWidth === 0) {
         console.error("Image must be fully loaded before calling getAverageColorFromImage.");
@@ -240,9 +310,9 @@ function getAverageColorFromImage(imgElement) {
 
             // Skip transparent pixels (alpha = 0)
             if (alpha > 0) {
-                redSum += imageData[i];     // Red
+                redSum += imageData[i];     // Red
                 greenSum += imageData[i + 1]; // Green
-                blueSum += imageData[i + 2];  // Blue
+                blueSum += imageData[i + 2];  // Blue
                 pixelCount++;
             }
         }
@@ -251,7 +321,7 @@ function getAverageColorFromImage(imgElement) {
             const avgR = Math.round(redSum / pixelCount);
             const avgG = Math.round(greenSum / pixelCount);
             const avgB = Math.round(blueSum / pixelCount);
-            
+
             // 5. Apply the brightness boost
             const boost = (component, offset) => {
                 return Math.min(255, component + offset);
@@ -260,7 +330,7 @@ function getAverageColorFromImage(imgElement) {
             const boostedR = boost(avgR, BRIGHTNESS_BOOST);
             const boostedG = boost(avgG, BRIGHTNESS_BOOST);
             const boostedB = boost(avgB, BRIGHTNESS_BOOST);
-            
+
             // ------------------------------------
 
             return `rgb(${boostedR}, ${boostedG}, ${boostedB})`;

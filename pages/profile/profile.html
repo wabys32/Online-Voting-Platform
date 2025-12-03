@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voting Website</title>
     <!-- Extra styles -->
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="profile.css">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <!-- Bootstrap -->
@@ -20,10 +20,10 @@
             <h4 class="mb-4"><i class="bi bi-square-half"></i> Vote.me</h4>
             <ul class="nav flex-column">
                 <!--<li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-house-door"></i> For You</a></li>-->
-                <li class="nav-item"><a href="#" class="nav-link active"><i class="bi bi-compass"></i> Explore</a></li>
+                <li class="nav-item"><a href="../main/main.html" class="nav-link"><i class="bi bi-compass"></i> Explore</a></li>
                 <!-- <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-person"></i> Friends</a></li> -->
                 <li class="nav-item"><a href="../upload/upload.html" class="nav-link"><i class="bi bi-upload"></i> Upload</a></li>
-                <li class="nav-item"><a href="../profile/profile.html" class="nav-link"><i class="bi bi-person-circle"></i> Profile</a></li>
+                <li class="nav-item"><a href="#" class="nav-link active"><i class="bi bi-person-circle"></i> Profile</a></li>
                 <!-- <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-three-dots"></i> More</a></li> -->
             </ul>
         </div>
@@ -33,11 +33,10 @@
             <!-- Top Navbar -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                 <div class="container-fluid">
-                    <!-- Wider Search Bar -->
-                    <form class="d-flex mx-auto" style="width: 600px;">
+                    <form class="search-bar d-flex mx-auto" style="width: 600px;">
                         <input class="form-control me-2" type="search" placeholder="Search" style="font-size: 0.9rem;" id="searchInput">
                     </form>
-                
+
                     <!-- Right-aligned buttons -->
                     <div class="d-flex" id="user-credentials">
                         <button class="btn btn-outline-primary me-2" type="button" onclick="window.location.href='../login/login.html'">Login</button>
@@ -60,17 +59,23 @@
 
             <!-- Video Grid -->
             <div class="container-fluid py-3">
+                <p id="emailField">Email: test@gmail.com</p>
+                <p id="nicknameField">Nickname</p>
+                <p id="nameField">John Doe</p>
+
+                <h2 class="your-posts">Your posts:</h2>
                 <div class="video-grid">
                     <div class="row g-3" id="pollsContainer">
-                        <!-- Polls will be injected here by main.js -->
+                        <!-- Polls that were created by user -->
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
     <script src="auth.js"></script>
-    <script src="main.js"></script>
+    <script src="profile.js"></script>
     <script src="../../assets/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 

@@ -205,13 +205,17 @@ const pollSchema = new mongoose.Schema({
     nickname: String,
     option1Votes: { type: Number, default: 0 },
     option2Votes: { type: Number, default: 0 },
-    votedUsers: [{ type: String }],
+    // MODIFIED: votedUsers now stores an array of objects (nickname and option voted)
+    votedUsers: [{
+        nickname: { type: String, required: true },
+        option: { type: Number, required: true, min: 1, max: 2 } // Stores 1 or 2
+    }],
     uploadDate: { type: Date, default: Date.now }
 });
 const Poll = mongoose.model("Poll", pollSchema, "polls");
 
 // Route: Upload poll (two images + texts)
-app.post("/api/polls", async (req, res) =>  {
+app.post("/api/polls", async (req, res) => {
     try {
         const { option1, option2, nickname } = req.body;
 
@@ -238,23 +242,31 @@ app.get("/api/polls", async (req, res) => {
     }
 });
 // ULTRA-FAST endpoint for main page – only thumbnails + text (5–15 KB per poll)
-app.get("/api/polls/thumbs", async (req, res) => {
-    try {
-        const polls = await Poll.find()
-            .select("option1.thumbData option1.text option2.thumbData option2.text nickname uploadDate _id")
-            .sort({ uploadDate: -1 })
-            .lean(); // removes MongoDB bloat
+// app.get("/api/polls/thumbs", async (req, res) => {
+//     try {
+//         const polls = await Poll.find()
+//             .select("option1.thumbData option1.text option2.thumbData option2.text nickname uploadDate _id")
+//             .sort({ uploadDate: -1 })
+//             .lean(); // removes MongoDB bloat
 
-        res.json(polls);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+//         res.json(polls);
+//     } catch (err) {
+//         res.status(500).json({ error: err.message });
+//     }
+// });
 
 // SUPER LIGHT list – no images at all (just texts + IDs for main page)
 app.get("/api/polls/light", async (req, res) => {
     try {
-        const polls = await Poll.find()
+        const { nickname } = req.query; // Extract nickname from query parameters
+
+        let filter = {};
+        if (nickname) {
+            filter = { nickname: nickname }; // Create a filter object if nickname is present
+        }
+
+        // Apply the filter to the Poll.find() method
+        const polls = await Poll.find(filter)
             .select("option1.text option2.text nickname uploadDate _id")
             .sort({ uploadDate: -1 })
             .lean();
@@ -264,7 +276,6 @@ app.get("/api/polls/light", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
 // Get thumbnails for a single poll (lazy load)
 app.get("/api/polls/:id/thumbs", async (req, res) => {
     try {
@@ -298,8 +309,8 @@ app.post("/api/polls/:id/vote", async (req, res) => {
         if (!token) return res.status(401).json({ error: "Login required to vote" });
 
         // CHANGE: Extract option AND userNickname from the request body
-        const { option, userNickname } = req.body; 
-        
+        const { option, userNickname } = req.body;
+
         if (!userNickname) return res.status(400).json({ error: "Nickname not provided" });
 
         if (option !== 1 && option !== 2) return res.status(400).json({ error: "Invalid option" });
@@ -307,16 +318,18 @@ app.post("/api/polls/:id/vote", async (req, res) => {
         const poll = await Poll.findById(req.params.id);
         if (!poll) return res.status(404).json({ error: "Poll not found" });
 
-        // CHANGE: Check if nickname is already in the votedUsers array
-        if (poll.votedUsers.includes(userNickname)) {
+        // MODIFIED: Check if nickname exists in the new array structure
+        const existingVote = poll.votedUsers.find(vote => vote.nickname === userNickname);
+
+        if (existingVote) {
             return res.status(403).json({ error: "You already voted" });
         }
 
         if (option === 1) poll.option1Votes += 1;
         else poll.option2Votes += 1;
 
-        // CHANGE: Push nickname instead of userId
-        poll.votedUsers.push(userNickname); 
+        // MODIFIED: Push an object with nickname and option
+        poll.votedUsers.push({ nickname: userNickname, option: option });
         await poll.save();
 
         res.json({ success: true, option1Votes: poll.option1Votes, option2Votes: poll.option2Votes });
@@ -327,25 +340,29 @@ app.post("/api/polls/:id/vote", async (req, res) => {
 
 
 // Check if user has already voted
+// MODIFIED: Now returns the specific option the user voted for if they have voted.
 app.get("/api/polls/:id/checkvote", async (req, res) => {
     try {
         const token = req.headers.authorization?.split(" ")[1];
         if (!token) return res.status(401).json({ error: "Login required to check vote" });
 
-        // CHANGE: Get nickname from query parameters (sent by vote.js)
-        const { nickname: userNickname } = req.query; 
+        const { nickname: userNickname } = req.query;
 
         if (!userNickname) return res.status(400).json({ error: "Nickname not provided" });
 
         const poll = await Poll.findById(req.params.id);
         if (!poll) return res.status(404).json({ error: "Poll not found" });
 
-        // CHANGE: Check if the nickname is in the votedUsers array (which now stores strings)
-        if (poll.votedUsers.includes(userNickname)) {
-            return res.status(403).json({ error: "You already voted" });
+        // MODIFIED: Find the vote object in the new array structure
+        const existingVote = poll.votedUsers.find(vote => vote.nickname === userNickname);
+
+        if (existingVote) {
+            // Return the option the user voted for (e.g., { voted: true, option: 1 })
+            return res.json({ voted: true, option: existingVote.option });
         }
-        
-        res.json({ success: true });
+
+        // If not found, only return voted: false
+        res.json({ voted: false });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

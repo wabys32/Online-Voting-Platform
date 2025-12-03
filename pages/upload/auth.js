@@ -1,5 +1,4 @@
 const userCredentialsContainer = document.getElementById('user-credentials')
-const upload_page = document.getElementById("upload_page")
 let user_email = null;
 let user_name = null;
 let user_nickname = null;

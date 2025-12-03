@@ -1,0 +1,88 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.nav-link {
+    color: #333 !important;
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 15px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.nav-link.active {
+    color: white !important;
+    background-color: #0d6efd;
+}
+
+.nav-link.active:hover {
+    color: white !important;
+    background-color: #0f5aca !important;
+}
+
+.nav-link:hover {
+    background: #f1f1f1;
+    color: #333;
+}
+
+.nav-link:active{
+    background: rgb(225, 225, 225)
+}
+
+.video-card {
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.video-card:hover {
+    transform: scale(1.02);
+}
+
+.username-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+.video-card {
+    height: 250px;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.video-card:hover {
+    transform: scale(1.03);
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+
+.search-bar {
+    width: 600px;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+.your-posts {
+    font-weight: bolder;
+    margin-bottom: 40px;
+}
